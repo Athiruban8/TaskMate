@@ -5,10 +5,9 @@ import {
   PlusIcon,
   TrashIcon,
   UserIcon,
-  MapPinIcon,
-  UsersIcon,
-  FolderIcon, // A more generic icon for an empty state
+  FolderIcon,
 } from "@heroicons/react/24/outline";
+import Link from "next/link";
 import ProjectForm from "../components/ProjectForm";
 import Navigation from "../components/NavBar";
 import { useAuth } from "../../lib/auth-context";
@@ -92,12 +91,22 @@ export default function ProjectsPage() {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInDays = Math.floor(
-      (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24),
+    const startOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
+    const startOfDate = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
     );
 
-    if (diffInDays < 1) return "Today";
-    if (diffInDays < 2) return "Yesterday";
+    const diffInTime = startOfToday.getTime() - startOfDate.getTime();
+    const diffInDays = Math.round(diffInTime / (1000 * 60 * 60 * 24));
+
+    if (diffInDays === 0) return "Today";
+    if (diffInDays === 1) return "Yesterday";
     if (diffInDays < 7) return `${diffInDays} days ago`;
 
     return date.toLocaleDateString("en-US", {
@@ -106,7 +115,6 @@ export default function ProjectsPage() {
     });
   };
 
-  // A cleaner loading state
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-white dark:bg-neutral-950">
@@ -163,33 +171,36 @@ export default function ProjectsPage() {
         ) : (
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
             {projects.map((project) => {
-              const memberCount = project._count?.members || 0;
+              const memberCount = (project._count?.members || 0) + 1;
               const spotsLeft = project.teamSize - memberCount;
               const isFullyBooked = spotsLeft <= 0;
               const progressPercentage = (memberCount / project.teamSize) * 100;
 
               return (
-                <div
+                <Link
+                  href={`/projects/${project.id}`}
                   key={project.id}
-                  className="group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white transition-all hover:-translate-y-1 hover:shadow-xl dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-700"
+                  className="group relative flex flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white transition-all hover:-translate-y-1 hover:shadow-xl dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-700"
                 >
-                  {/* Main Content */}
                   <div className="flex-grow p-6">
                     {project.owner.id === user?.id && (
-                      <button className="absolute top-4 right-4 z-10 text-neutral-400 opacity-0 transition-opacity group-hover:opacity-100 hover:text-red-500 dark:text-neutral-500">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          console.log("Delete project:", project.id);
+                        }}
+                        className="absolute top-4 right-4 z-10 text-neutral-400 opacity-0 transition-opacity group-hover:opacity-100 hover:text-red-500 dark:text-neutral-500"
+                      >
                         <TrashIcon className="h-5 w-5" />
                       </button>
                     )}
-
                     <h3 className="mb-2 text-xl font-semibold text-neutral-900 dark:text-white">
                       {project.title}
                     </h3>
-
                     <p className="mb-5 line-clamp-3 text-sm text-neutral-500 dark:text-neutral-400">
                       {project.description}
                     </p>
-
-                    {/* Tech & Categories */}
                     <div className="flex flex-wrap gap-2">
                       {project.technologies.slice(0, 3).map((tech) => (
                         <span
@@ -210,9 +221,7 @@ export default function ProjectsPage() {
                     </div>
                   </div>
 
-                  {/* Footer */}
-                  <div className="space-y-4 bg-neutral-50/75 p-6 dark:bg-neutral-950/50">
-                    {/* Meta Info */}
+                  <div className="mt-auto space-y-4 bg-neutral-50/75 p-6 dark:bg-neutral-950/50">
                     <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
                       <div
                         className="flex items-center gap-1.5"
@@ -228,13 +237,10 @@ export default function ProjectsPage() {
                       </span>
                     </div>
 
-                    {/* Progress Bar & Status */}
                     <div>
                       <div className="mb-1 flex justify-between text-xs font-medium text-neutral-600 dark:text-neutral-300">
                         <span>Team</span>
-                        <span>
-                          {isFullyBooked ? "Full" : `${spotsLeft} spots left`}
-                        </span>
+                        <span>{`${memberCount} / ${project.teamSize}`}</span>
                       </div>
                       <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
                         <div
@@ -244,8 +250,12 @@ export default function ProjectsPage() {
                       </div>
                     </div>
 
-                    {/* Request to Join Button */}
                     <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log("Request to join:", project.id);
+                      }}
                       disabled={isFullyBooked}
                       className={`w-full rounded-lg py-2.5 text-sm font-semibold transition-colors ${
                         isFullyBooked
@@ -256,7 +266,7 @@ export default function ProjectsPage() {
                       {isFullyBooked ? "Team Full" : "Request to Join"}
                     </button>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>

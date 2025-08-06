@@ -84,7 +84,7 @@ export default function Navigation() {
   };
 
   const ProfileMenu = () => (
-    <div className="ring-opacity-5 absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-xl bg-white shadow-2xl ring-1 ring-stone-300 focus:outline-none dark:bg-neutral-900">
+    <div className="absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900">
       <div className="py-1">
         <div className="px-4 py-3">
           <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">

@@ -8,10 +8,11 @@ export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  const {id} = await params;
   try {
     const project = await prisma.project.findUnique({
       where: {
-        id: params.id
+        id: id
       },
       include: {
         owner: {
@@ -19,6 +20,40 @@ export async function GET(
             id: true,
             name: true,
             email: true,
+            githubUrl: true,
+            skills: true,
+          }
+        },
+        // Include members through the junction table
+        members: {
+          include: {
+            // For each member, include their user details
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                skills: true,
+              }
+            }
+          }
+        },
+        // Include technologies through the junction table
+        technologies: {
+          include: {
+            technology: true // Includes the full Technology object
+          }
+        },
+        // Include categories through the junction table
+        categories: {
+          include: {
+            category: true // Includes the full Category object
+          }
+        },
+        // Include industries through the junction table
+        industries: {
+          include: {
+            industry: true // Includes the full Industry object
           }
         }
       }
@@ -28,22 +63,40 @@ export async function GET(
       return NextResponse.json({ error: 'Project not found' }, { status: 404 })
     }
 
-    return NextResponse.json(project)
+    // flatten the many-to-many relationships for easier use on the client
+    const formattedProject = {
+        ...project,
+        technologies: project.technologies.map(t => t.technology),
+        categories: project.categories.map(c => c.category),
+        industries: project.industries.map(i => i.industry),
+    };
+
+
+    return NextResponse.json(formattedProject)
   } catch (err) {
     console.error('Error fetching project:', err)
     return NextResponse.json({ error: 'Failed to fetch project' }, { status: 500 })
   }
 }
 
-// PUT /api/projects/[id] - Update a project
+// PUT /api/projects/[id] - Update a project and its relations
 export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
     const data = await request.json()
-    const { title, description } = data
+    const { 
+        title, 
+        description, 
+        city, 
+        teamSize, 
+        technologyIds, // an array of technology IDs
+        categoryIds,   // an array of category IDs
+        industryIds    // an array of industry IDs
+    } = data
 
+    // validation
     if (!title || !description) {
       return NextResponse.json(
         { error: 'Title and description are required' },
@@ -58,19 +111,37 @@ export async function PUT(
       data: {
         title,
         description,
+        city,
+        teamSize,
+        // Update many-to-many relationships
+        // The `set` operator disconnects all existing relations and connects the new ones.
+        technologies: technologyIds ? {
+          set: technologyIds.map((id: string) => ({ technologyId: id, projectId: params.id }))
+        } : undefined,
+        categories: categoryIds ? {
+          set: categoryIds.map((id: string) => ({ categoryId: id, projectId: params.id }))
+        } : undefined,
+        industries: industryIds ? {
+          set: industryIds.map((id: string) => ({ industryId: id, projectId: params.id }))
+        } : undefined,
       },
       include: {
-        owner: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          }
-        }
+        owner: { select: { id: true, name: true, email: true } },
+        technologies: { include: { technology: true } },
+        categories: { include: { category: true } },
+        industries: { include: { industry: true } },
       }
     })
 
-    return NextResponse.json(project)
+    //flatten the response for consistency 
+    const formattedProject = {
+        ...project,
+        technologies: project.technologies.map(t => t.technology),
+        categories: project.categories.map(c => c.category),
+        industries: project.industries.map(i => i.industry),
+    };
+
+    return NextResponse.json(formattedProject)
   } catch (err) {
     console.error('Error updating project:', err)
     return NextResponse.json({ error: 'Failed to update project' }, { status: 500 })
