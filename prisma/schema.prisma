@@ -19,6 +19,7 @@ model User {
   
   ownedProjects   Project[]        @relation("UserProjects")
   projectMembers  ProjectMember[]
+  projectRequests ProjectRequest[] 
 }
 
 model Project {
@@ -36,6 +37,7 @@ model Project {
   technologies  ProjectTech[]     // Many-to-many with Technology
   categories    ProjectCategory[] // Many-to-many with Category  
   industries    ProjectIndustry[] // Many-to-many with Industry
+  requests      ProjectRequest[]  // Join requests for this project
 }
 
 model Technology {
@@ -58,6 +60,22 @@ model Industry {
   name     String           @unique 
   slug     String           @unique 
   projects ProjectIndustry[]
+}
+
+model ProjectRequest {
+  id        String        @id @default(uuid())
+  projectId String
+  userId    String
+  status    RequestStatus @default(PENDING)
+  message   String?       
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  
+  // Relations
+  project   Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([projectId, userId]) // to prevent duplicate requests
 }
 
 // Junction tables for many-to-many relationships
@@ -111,4 +129,11 @@ enum MemberStatus {
   ACTIVE
   LEFT
   REMOVED
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  WITHDRAWN
 }
