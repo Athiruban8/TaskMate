@@ -10,6 +10,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { id } = await params
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     
@@ -19,7 +20,7 @@ export async function GET(
 
     // check if the user is the project owner
     const project = await prisma.project.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       select: { ownerId: true }
     })
 
@@ -29,7 +30,7 @@ export async function GET(
 
     const requests = await prisma.projectRequest.findMany({
       where: { 
-        projectId: params.id,
+        projectId: id,
         status: 'PENDING' // only show pending requests
       },
       include: {
@@ -57,6 +58,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { id } = await params
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     
@@ -77,7 +79,7 @@ export async function POST(
 
     // Check if project exists and has spots available
     const project = await prisma.project.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: {
         _count: {
           select: {
@@ -105,7 +107,7 @@ export async function POST(
       where: {
         userId_projectId: {
           userId: user.id,
-          projectId: params.id
+          projectId: id  //project ID from params
         }
       }
     })
@@ -117,7 +119,7 @@ export async function POST(
     // Create the request
     const projectRequest = await prisma.projectRequest.create({
       data: {
-        projectId: params.id,
+        projectId: id,
         userId: user.id,
         message: message || null
       },

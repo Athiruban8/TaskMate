@@ -8,70 +8,74 @@ export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const {id} = await params;
   try {
+    const { id } = await params
+    
     const project = await prisma.project.findUnique({
       where: {
         id: id
       },
       include: {
         owner: {
-          select: {
+          select: { 
             id: true,
-            name: true,
-            email: true,
-            githubUrl: true,
-            skills: true,
+            name: true, 
+            email: true 
           }
         },
-        // Include members through the junction table
+        technologies: {
+          include: { 
+            technology: true 
+          }
+        },
+        categories: {
+          include: { 
+            category: true 
+          }
+        },
+        industries: {
+          include: { 
+            industry: true 
+          }
+        },
         members: {
+          where: { 
+            status: 'ACTIVE' 
+          },
           include: {
-            // For each member, include their user details
             user: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                skills: true,
-              }
+              select: { id: true, name: true, email: true }
             }
           }
         },
-        // Include technologies through the junction table
-        technologies: {
-          include: {
-            technology: true // Includes the full Technology object
+        _count: {
+          select: {
+            members: { where: { status: 'ACTIVE' } }
           }
         },
-        // Include categories through the junction table
-        categories: {
-          include: {
-            category: true // Includes the full Category object
-          }
+        requests: {
+          select: {
+            id: true,
+            userId: true,
+            status: true,
+          },
         },
-        // Include industries through the junction table
-        industries: {
-          include: {
-            industry: true // Includes the full Industry object
-          }
-        }
       }
     })
-
+    
     if (!project) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 })
     }
 
     // flatten the many-to-many relationships for easier use on the client
     const formattedProject = {
-        ...project,
-        technologies: project.technologies.map(t => t.technology),
-        categories: project.categories.map(c => c.category),
-        industries: project.industries.map(i => i.industry),
+      ...project,
+      technologies: project.technologies.map(t => t.technology),
+      categories: project.categories.map(c => c.category),
+      industries: project.industries.map(i => i.industry),
     };
 
-
+    
     return NextResponse.json(formattedProject)
   } catch (err) {
     console.error('Error fetching project:', err)
@@ -85,6 +89,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { id } = await params
     const data = await request.json()
     const { 
         title, 
@@ -106,7 +111,7 @@ export async function PUT(
 
     const project = await prisma.project.update({
       where: {
-        id: params.id
+        id: id
       },
       data: {
         title,
@@ -116,13 +121,13 @@ export async function PUT(
         // Update many-to-many relationships
         // The `set` operator disconnects all existing relations and connects the new ones.
         technologies: technologyIds ? {
-          set: technologyIds.map((id: string) => ({ technologyId: id, projectId: params.id }))
+          set: technologyIds.map((id: string) => ({ technologyId: id }))
         } : undefined,
         categories: categoryIds ? {
-          set: categoryIds.map((id: string) => ({ categoryId: id, projectId: params.id }))
+          set: categoryIds.map((id: string) => ({ categoryId: id }))
         } : undefined,
         industries: industryIds ? {
-          set: industryIds.map((id: string) => ({ industryId: id, projectId: params.id }))
+          set: industryIds.map((id: string) => ({ industryId: id }))
         } : undefined,
       },
       include: {
@@ -154,12 +159,13 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { id } = await params
     await prisma.project.delete({
       where: {
-        id: params.id
+        id: id
       }
     })
-
+    
     return NextResponse.json({ message: 'Project deleted successfully' })
   } catch (err) {
     console.error('Error deleting project:', err)

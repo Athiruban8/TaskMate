@@ -12,42 +12,16 @@ import ProjectForm from "@/app/components/ProjectForm";
 import Navigation from "@/app/components/NavBar";
 import { useAuth } from "@/lib/auth-context";
 import { JoinRequestModal } from "@/app/components/JoinRequestModal";
-
-// Updated Project interface to include requests
-interface Project {
-  id: string;
-  title: string;
-  description: string;
-  teamSize: number;
-  createdAt: string;
-  owner: {
-    id: string;
-    name: string | null;
-  };
-  technologies: Array<{
-    technology: { id: string; name: string };
-  }>;
-  categories: Array<{
-    category: { id: string; name: string };
-  }>;
-  _count: {
-    members: number | null;
-  };
-  requests: Array<{
-    userId: string;
-  }>;
-  // UI-specific state
-  hasSentRequest?: boolean;
-}
+import { ProjectSummary, RequestStatus } from "@/lib/types";
 
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
-
-  // State for managing the join request modal
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [selectedProject, setSelectedProject] = useState<ProjectSummary | null>(
+    null,
+  );
 
   const fetchProjects = async () => {
     try {
@@ -55,14 +29,20 @@ export default function ProjectsPage() {
       const response = await fetch("/api/projects");
       if (response.ok) {
         let data = await response.json();
-        // Determine if the current user has sent a request for each project
         if (user) {
-          data = data.map((project: Project) => ({
-            ...project,
-            hasSentRequest: project.requests?.some(
+          data = data.map((project: ProjectSummary) => {
+            const userRequest = project.requests?.find(
               (req) => req.userId === user.id,
-            ),
-          }));
+            );
+            return {
+              ...project,
+              hasSentRequest: !!userRequest,
+              requestStatus: userRequest?.status,
+              isAlreadyMember: project.members?.some(
+                (member) => member.userId === user.id,
+              ),
+            };
+          });
         }
         setProjects(data);
       }
@@ -75,15 +55,17 @@ export default function ProjectsPage() {
 
   useEffect(() => {
     fetchProjects();
-  }, [user]); // Re-fetch if the user logs in/out
+  }, [user]);
 
   const handleRequestSuccess = (projectId: string) => {
     setProjects((prevProjects) =>
       prevProjects.map((p) =>
-        p.id === projectId ? { ...p, hasSentRequest: true } : p,
+        p.id === projectId
+          ? { ...p, hasSentRequest: true, requestStatus: RequestStatus.PENDING }
+          : p,
       ),
     );
-    setSelectedProject(null); // Close the modal on success
+    setSelectedProject(null);
   };
 
   const formatDate = (dateString: string) => {
@@ -125,7 +107,6 @@ export default function ProjectsPage() {
 
   return (
     <>
-      {/* Modal for creating a new project */}
       {showProjectForm && (
         <ProjectForm
           onClose={() => setShowProjectForm(false)}
@@ -135,8 +116,6 @@ export default function ProjectsPage() {
           }}
         />
       )}
-
-      {/* Modal for joining a project */}
       {selectedProject && (
         <JoinRequestModal
           project={selectedProject}
@@ -144,7 +123,6 @@ export default function ProjectsPage() {
           onSuccess={() => handleRequestSuccess(selectedProject.id)}
         />
       )}
-
       <div className="min-h-screen bg-white dark:bg-neutral-950">
         <Navigation />
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -165,7 +143,6 @@ export default function ProjectsPage() {
               New Idea
             </button>
           </div>
-
           {projects.length === 0 ? (
             <div className="py-16 text-center">
               <FolderIcon className="mx-auto h-16 w-16 text-neutral-300 dark:text-neutral-700" />
@@ -197,13 +174,20 @@ export default function ProjectsPage() {
                 if (isOwner) {
                   buttonText = "You are the owner";
                   buttonDisabled = true;
-                } else if (project.hasSentRequest) {
-                  buttonText = "Request Sent";
+                } else if (project.isAlreadyMember) {
+                  buttonText = "You are a member";
                   buttonDisabled = true;
+                } else if (project.hasSentRequest) {
+                  if (project.requestStatus === "PENDING") {
+                    buttonText = "Request Sent";
+                    buttonDisabled = true;
+                  } else if (project.requestStatus === "REJECTED") {
+                    buttonText = "Request Rejected";
+                    buttonDisabled = true;
+                  }
                 } else if (isFullyBooked) {
                   buttonText = "Team Full";
                 }
-
                 return (
                   <Link
                     href={`/projects/${project.id}`}
@@ -240,7 +224,6 @@ export default function ProjectsPage() {
                         ))}
                       </div>
                     </div>
-
                     <div className="mt-auto space-y-4 bg-neutral-50/75 p-6 dark:bg-neutral-950/50">
                       <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
                         <div
@@ -258,7 +241,6 @@ export default function ProjectsPage() {
                           {formatDate(project.createdAt)}
                         </span>
                       </div>
-
                       <div>
                         <div className="mb-1 flex justify-between text-xs font-medium text-neutral-600 dark:text-neutral-300">
                           <span>Team</span>
@@ -271,7 +253,6 @@ export default function ProjectsPage() {
                           />
                         </div>
                       </div>
-
                       <button
                         onClick={(e) => {
                           e.preventDefault();

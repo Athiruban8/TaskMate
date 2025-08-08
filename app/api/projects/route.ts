@@ -32,14 +32,7 @@ export async function GET() {
         },
         members: {
           where: { status: 'ACTIVE' },
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-              }
-            }
-          }
+          select: { userId: true }
         },
         _count: {
           select: {
@@ -47,7 +40,13 @@ export async function GET() {
               where: { status: 'ACTIVE' }
             }
           }
-        }
+        },
+        requests: {
+          select: {
+            userId: true,
+            status: true,
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc'

@@ -9,6 +9,7 @@ export async function PATCH(
 ) {
   try {
     const supabase = await createClient()
+    const { id } = await params
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -23,7 +24,7 @@ export async function PATCH(
 
     // Get the request with project info
     const projectRequest = await prisma.projectRequest.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: {
         project: {
           include: {
@@ -66,7 +67,7 @@ export async function PATCH(
       const result = await prisma.$transaction(async (tx) => {
         // Update request status to approved
         const updatedRequest = await tx.projectRequest.update({
-          where: { id: params.id },
+          where: { id: id },
           data: { status: 'APPROVED', updatedAt: new Date() }
         })
 
@@ -86,7 +87,7 @@ export async function PATCH(
     } else {
       // reject request
       const updatedRequest = await prisma.projectRequest.update({
-        where: { id: params.id },
+        where: { id: id },
         data: { status: 'REJECTED', updatedAt: new Date() }
       })
 
@@ -105,13 +106,14 @@ export async function DELETE(
 ) {
   try {
     const supabase = await createClient()
+    const { id } = await params //get the request ID from params
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const projectRequest = await prisma.projectRequest.findUnique({
-      where: { id: params.id }
+      where: { id: id }
     })
 
     if (!projectRequest) {
@@ -127,7 +129,7 @@ export async function DELETE(
     }
 
     await prisma.projectRequest.update({
-      where: { id: params.id },
+      where: { id: id },
       data: { status: 'WITHDRAWN' }
     })
 
