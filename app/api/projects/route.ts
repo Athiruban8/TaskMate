@@ -109,7 +109,7 @@ export async function POST(request: Request) {
         title,
         description,
         city,
-        teamSize: parseInt(teamSize),
+        teamSize: teamSize,
         ownerId,
         // Create technology relationships
         technologies: {
@@ -170,17 +170,15 @@ export async function POST(request: Request) {
     })
 
     return NextResponse.json(project, { status: 201 })
-  } catch (err) {
+  } catch (err : any) {
     console.error('Error creating project:', err)
 
     // Error handling
-    if (err instanceof Error) {
-      if (err.message.includes('Foreign key constraint')) {
+    if (err.code === 'P2003') { // if foreign key constraint failed
         return NextResponse.json(
           { error: 'Invalid technology, category, or industry selected' },
-          { status: 400 }
-        )
-      }
+           { status: 400 }
+          )
     }
     
     return NextResponse.json(

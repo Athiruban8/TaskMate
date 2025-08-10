@@ -118,17 +118,30 @@ export async function PUT(
         description,
         city,
         teamSize,
-        // Update many-to-many relationships
-        // The `set` operator disconnects all existing relations and connects the new ones.
-        technologies: technologyIds ? {
-          set: technologyIds.map((id: string) => ({ technologyId: id }))
-        } : undefined,
-        categories: categoryIds ? {
-          set: categoryIds.map((id: string) => ({ categoryId: id }))
-        } : undefined,
-        industries: industryIds ? {
-          set: industryIds.map((id: string) => ({ industryId: id }))
-        } : undefined,
+        technologies: {
+          deleteMany: {},
+          create: technologyIds.map((techId: string) => ({
+            technology: {
+              connect: { id: techId }
+            }
+          }))
+        },
+        categories: {
+            deleteMany: {},
+            create: categoryIds.map((catId: string) => ({
+                category: {
+                    connect: { id: catId }
+                }
+            }))
+        },
+        industries: {
+            deleteMany: {},
+            create: industryIds.map((indId: string) => ({
+                industry: {
+                    connect: { id: indId }
+                }
+            }))
+        }
       },
       include: {
         owner: { select: { id: true, name: true, email: true } },

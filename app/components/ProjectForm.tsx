@@ -1,13 +1,16 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import {
   XMarkIcon,
   ChevronDownIcon,
   MagnifyingGlassIcon,
   CheckIcon,
+  TrashIcon,
 } from "@heroicons/react/24/outline";
+import { ProjectDetails } from "@/lib/types";
 
 // Helper hook for closing dropdowns when clicking outside
 const useClickOutside = (
@@ -167,7 +170,20 @@ const MultiSelect = ({
   );
 };
 
-export default function ProjectForm({ onClose, onSuccess }: ProjectFormProps) {
+interface ProjectFormProps {
+  onClose: () => void;
+  onSuccess?: () => void;
+  projectToEdit?: ProjectDetails | null;
+}
+
+export default function ProjectForm({
+  onClose,
+  onSuccess,
+  projectToEdit,
+}: ProjectFormProps) {
+  const isEditMode = !!projectToEdit;
+  const router = useRouter();
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [city, setCity] = useState("");
@@ -184,11 +200,24 @@ export default function ProjectForm({ onClose, onSuccess }: ProjectFormProps) {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { user } = useAuth();
   const modalRef = useRef<HTMLDivElement>(null);
-
   useClickOutside(modalRef, onClose);
+  // Pre-populate form if in edit mode
+  useEffect(() => {
+    if (isEditMode && projectToEdit) {
+      setTitle(projectToEdit.title);
+      setDescription(projectToEdit.description);
+      setCity(projectToEdit.city || "");
+      setTeamSize(projectToEdit.teamSize);
+      setSelectedTechnologies(projectToEdit.technologies.map((t) => t.id));
+      setSelectedCategories(projectToEdit.categories.map((c) => c.id));
+      setSelectedIndustries(projectToEdit.industries.map((i) => i.id));
+    }
+  }, [isEditMode, projectToEdit]);
 
+  // (fetchOptions and other hooks remain the same)
   useEffect(() => {
     fetchOptions();
     // Prevent body scroll when modal is open
@@ -235,25 +264,32 @@ export default function ProjectForm({ onClose, onSuccess }: ProjectFormProps) {
     setLoading(true);
     setError("");
 
+    const projectData = {
+      title,
+      description,
+      city,
+      teamSize,
+      ownerId: user.id,
+      technologyIds: selectedTechnologies,
+      categoryIds: selectedCategories,
+      industryIds: selectedIndustries,
+    };
+
     try {
-      const response = await fetch("/api/projects", {
-        method: "POST",
+      const url = isEditMode
+        ? `/api/projects/${projectToEdit.id}`
+        : "/api/projects";
+      const method = isEditMode ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          description,
-          city,
-          teamSize,
-          ownerId: user.id,
-          technologyIds: selectedTechnologies,
-          categoryIds: selectedCategories,
-          industryIds: selectedIndustries,
-        }),
+        body: JSON.stringify(projectData),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to create project");
+        throw new Error(errorData.error || "Failed to save project");
       }
       onSuccess?.();
     } catch (err) {
@@ -261,6 +297,19 @@ export default function ProjectForm({ onClose, onSuccess }: ProjectFormProps) {
         err instanceof Error ? err.message : "An unexpected error occurred.",
       );
     } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!isEditMode || !projectToEdit) return;
+    setLoading(true);
+    setError("");
+    try {
+      await fetch(`/api/projects/${projectToEdit.id}`, { method: "DELETE" });
+      router.push("/projects"); // redirect to projects page after deletion
+    } catch (err) {
+      setError("Failed to delete project.");
       setLoading(false);
     }
   };
@@ -274,7 +323,7 @@ export default function ProjectForm({ onClose, onSuccess }: ProjectFormProps) {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-neutral-200 p-6 dark:border-neutral-800">
           <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">
-            Share an Idea
+            {isEditMode ? "Edit Project" : "Share an Idea"}
           </h2>
           <button
             onClick={onClose}
@@ -391,22 +440,64 @@ export default function ProjectForm({ onClose, onSuccess }: ProjectFormProps) {
             </div>
           )}
         </form>
-        <div className="flex gap-4 border-t border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 cursor-pointer rounded-lg bg-neutral-100 px-4 py-3 text-sm font-semibold text-neutral-800 transition-colors hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            onClick={handleSubmit}
-            disabled={loading}
-            className="flex-1 cursor-pointer rounded-lg bg-black px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-neutral-200"
-          >
-            {loading ? "Publishing..." : "Publish Idea"}
-          </button>
+
+        <div className="flex items-center justify-between gap-4 border-t border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900">
+          <div>
+            {isEditMode && !showDeleteConfirm && (
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={loading}
+                className="cusror-pointer flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+              >
+                <TrashIcon className="h-4 w-4" />
+                Delete
+              </button>
+            )}
+
+            {showDeleteConfirm && (
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                  Are you sure?
+                </p>
+                <button
+                  onClick={handleDelete}
+                  className="cursor-pointer rounded-lg px-4 py-3 font-bold text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+                >
+                  Yes, delete
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="cursor-pointer rounded-lg bg-neutral-100 px-4 py-3 text-sm font-semibold text-neutral-800 transition-colors hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="cursor-pointer rounded-lg bg-neutral-100 px-4 py-3 text-sm font-semibold text-neutral-800 transition-colors hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              onClick={handleSubmit}
+              disabled={loading}
+              className="flex-1 cursor-pointer rounded-lg bg-black px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-neutral-200"
+            >
+              {loading
+                ? isEditMode
+                  ? "Saving..."
+                  : "Publishing..."
+                : isEditMode
+                  ? "Save Changes"
+                  : "Publish Idea"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
