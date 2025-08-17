@@ -195,18 +195,6 @@ export default function ProjectsPage() {
                     className="group relative flex flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white transition-all hover:-translate-y-1 hover:shadow-xl dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-700"
                   >
                     <div className="flex-grow p-6">
-                      {isOwner && (
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            console.log("Delete project:", project.id);
-                          }}
-                          className="absolute top-4 right-4 z-10 text-neutral-400 opacity-0 transition-opacity group-hover:opacity-100 hover:text-red-500 dark:text-neutral-500"
-                        >
-                          <TrashIcon className="h-5 w-5" />
-                        </button>
-                      )}
                       <h3 className="mb-2 text-xl font-semibold text-neutral-900 dark:text-white">
                         {project.title}
                       </h3>

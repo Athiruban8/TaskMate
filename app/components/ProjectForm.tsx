@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import {
   XMarkIcon,
-  ChevronDownIcon,
   MagnifyingGlassIcon,
   CheckIcon,
   TrashIcon,
@@ -198,7 +197,8 @@ export default function ProjectForm({
   const [categories, setCategories] = useState<Category[]>([]);
   const [industries, setIndustries] = useState<Industry[]>([]);
 
-  const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { user } = useAuth();
@@ -217,7 +217,6 @@ export default function ProjectForm({
     }
   }, [isEditMode, projectToEdit]);
 
-  // (fetchOptions and other hooks remain the same)
   useEffect(() => {
     fetchOptions();
     // Prevent body scroll when modal is open
@@ -260,8 +259,8 @@ export default function ProjectForm({
       );
       return;
     }
-
-    setLoading(true);
+    setSubmitting(true);
+    setShowDeleteConfirm(false);
     setError("");
 
     const projectData = {
@@ -297,20 +296,20 @@ export default function ProjectForm({
         err instanceof Error ? err.message : "An unexpected error occurred.",
       );
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
   const handleDelete = async () => {
     if (!isEditMode || !projectToEdit) return;
-    setLoading(true);
+    setDeleting(true);
     setError("");
     try {
       await fetch(`/api/projects/${projectToEdit.id}`, { method: "DELETE" });
       router.push("/projects"); // redirect to projects page after deletion
     } catch (err) {
       setError("Failed to delete project.");
-      setLoading(false);
+      setDeleting(false);
     }
   };
 
@@ -327,7 +326,7 @@ export default function ProjectForm({
           </h2>
           <button
             onClick={onClose}
-            className="text-neutral-400 transition-colors hover:text-neutral-600 dark:hover:text-neutral-200"
+            className="cursor-pointer text-neutral-400 transition-colors hover:text-neutral-600 dark:hover:text-neutral-200"
           >
             <XMarkIcon className="h-6 w-6" />
           </button>
@@ -445,10 +444,9 @@ export default function ProjectForm({
           <div>
             {isEditMode && !showDeleteConfirm && (
               <button
-                type="button"
                 onClick={() => setShowDeleteConfirm(true)}
-                disabled={loading}
-                className="cusror-pointer flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+                disabled={deleting || submitting}
+                className="flex cursor-pointer items-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
               >
                 <TrashIcon className="h-4 w-4" />
                 Delete
@@ -464,7 +462,7 @@ export default function ProjectForm({
                   onClick={handleDelete}
                   className="cursor-pointer rounded-lg px-4 py-3 font-bold text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
                 >
-                  Yes, delete
+                  {deleting ? "Deleting..." : "Yes, delete"}
                 </button>
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
@@ -486,10 +484,10 @@ export default function ProjectForm({
             <button
               type="submit"
               onClick={handleSubmit}
-              disabled={loading}
+              disabled={submitting || deleting}
               className="flex-1 cursor-pointer rounded-lg bg-black px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-neutral-200"
             >
-              {loading
+              {submitting
                 ? isEditMode
                   ? "Saving..."
                   : "Publishing..."

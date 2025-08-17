@@ -172,16 +172,26 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
-    await prisma.project.delete({
-      where: {
-        id: id
-      }
-    })
-    
-    return NextResponse.json({ message: 'Project deleted successfully' })
-  } catch (err) {
-    console.error('Error deleting project:', err)
-    return NextResponse.json({ error: 'Failed to delete project' }, { status: 500 })
+    const { id } = params;
+    await prisma.$transaction(async (tx) => {
+      // first delete all members associated with the project.
+      await tx.projectMember.deleteMany({
+        where: {
+          projectId: id,
+        },
+      });
+
+      // delete the project.
+      await tx.project.delete({
+        where: {
+          id: id,
+        },
+      });
+    });
+    return NextResponse.json({ message: 'Project deleted successfully' });
+  } 
+  catch (err) {
+    console.error('Error deleting project:', err);
+    return NextResponse.json({ error: 'Failed to delete project' }, { status: 500 });
   }
 }

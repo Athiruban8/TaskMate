@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
@@ -13,10 +12,12 @@ import {
   SparklesIcon,
   InboxIcon,
   ArrowUturnLeftIcon,
+  PencilIcon,
 } from "@heroicons/react/24/outline";
 import { useAuth } from "@/lib/auth-context";
 import { JoinRequestModal } from "@/app/components/JoinRequestModal";
 import { ProjectDetails, JoinRequest, RequestStatus } from "@/lib/types";
+import ProjectForm from "@/app/components/ProjectForm";
 
 interface RequestCardProps {
   request: JoinRequest;
@@ -139,6 +140,7 @@ export default function ProjectPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("description");
+  const [showProjectForm, setShowProjectForm] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [requestsLoading, setRequestsLoading] = useState(false);
   const [rejectingRequest, setRejectingRequest] = useState<{
@@ -150,35 +152,34 @@ export default function ProjectPage() {
   const { user: currentUser } = useAuth();
   const id = params.id as string;
 
+  const fetchProject = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/projects/${id}`);
+      if (!response.ok) {
+        throw new Error("Project not found.");
+      }
+      const data: ProjectDetails = await response.json();
+      if (currentUser) {
+        const userRequest = data.requests?.find(
+          (req) => req.userId === currentUser.id,
+        );
+        data.hasSentRequest = !!userRequest;
+        data.requestStatus = userRequest?.status;
+        data.isAlreadyMember = data.members?.some(
+          (m) => m.user.id === currentUser.id,
+        );
+      }
+      setProject(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unknown error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!id) return;
-
-    const fetchProject = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`/api/projects/${id}`);
-        if (!response.ok) {
-          throw new Error("Project not found.");
-        }
-        const data: ProjectDetails = await response.json();
-        if (currentUser) {
-          const userRequest = data.requests?.find(
-            (req) => req.userId === currentUser.id,
-          );
-          data.hasSentRequest = !!userRequest;
-          data.requestStatus = userRequest?.status;
-          data.isAlreadyMember = data.members?.some(
-            (m) => m.user.id === currentUser.id,
-          );
-        }
-        setProject(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProject();
   }, [id, currentUser]);
 
@@ -235,6 +236,19 @@ export default function ProjectPage() {
       }, 5000); // 5-second undo window
       setRejectingRequest({ id: requestId, timer });
     }
+  };
+
+  const handleEditProject = () => {
+    setShowProjectForm(true);
+  };
+
+  const handleSuccess = () => {
+    fetchProject();
+    setShowProjectForm(false);
+  };
+
+  const handleClose = () => {
+    setShowProjectForm(false);
   };
 
   const handleUndoReject = () => {
@@ -326,12 +340,13 @@ export default function ProjectPage() {
               </h1>
               <div className="flex gap-3">
                 {project.owner?.id === currentUser?.id ? (
-                  <Link
-                    href={`/projects/${project.id}/edit`}
-                    className="inline-flex items-center justify-center rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 shadow-sm transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
+                  <button
+                    onClick={() => handleEditProject()}
+                    className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 shadow-sm transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
                   >
+                    <PencilIcon className="h-4 w-4" />
                     Edit Project
-                  </Link>
+                  </button>
                 ) : (
                   <button
                     type="button"
@@ -360,7 +375,7 @@ export default function ProjectPage() {
                     </button>
                     <button
                       onClick={() => setActiveTab("requests")}
-                      className={`flex items-center gap-2 border-b-2 px-1 py-3 text-sm font-medium whitespace-nowrap ${activeTab === "requests" ? "border-black text-black dark:border-white dark:text-white" : "border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700 dark:text-neutral-400 dark:hover:border-neutral-600 dark:hover:text-neutral-200"}`}
+                      className={`flex cursor-pointer items-center gap-2 border-b-2 px-1 py-3 text-sm font-medium whitespace-nowrap ${activeTab === "requests" ? "border-black text-black dark:border-white dark:text-white" : "border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700 dark:text-neutral-400 dark:hover:border-neutral-600 dark:hover:text-neutral-200"}`}
                     >
                       <InboxIcon className="h-4 w-4" /> Requests
                       {requests.length > 0 && (
@@ -481,6 +496,13 @@ export default function ProjectPage() {
             </aside>
           </div>
         </div>
+        {showProjectForm && (
+          <ProjectForm
+            onClose={() => handleClose()}
+            onSuccess={() => handleSuccess()}
+            projectToEdit={project}
+          />
+        )}
       </div>
     </>
   );
