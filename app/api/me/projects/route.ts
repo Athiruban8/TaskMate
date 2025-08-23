@@ -1,62 +1,66 @@
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { createClient } from '@/lib/supabase-server';
+import { MemberStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
+
+const projectIncludes = {
+  owner: {
+    select: {
+      id: true,
+      name: true
+    }
+  },
+  technologies: {
+    include: {
+      technology: true
+    }
+  },
+  categories: {
+    include: {
+      category: true
+    }
+  },
+  members: { 
+    select: {
+      userId: true 
+    }, 
+    where: { 
+      status: MemberStatus.ACTIVE 
+    } 
+  },
+  requests: { 
+    select: { 
+      userId: true, 
+      status: true 
+    } 
+  },
+  _count: {
+    select: {
+      members: {
+        where: { 
+          status: MemberStatus.ACTIVE 
+        } 
+      } 
+    } 
+  },
+};
 
 // GET /api/users/me/projects
 export async function GET(request: Request) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+    if (!user || !user.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const userId = user.id;
 
     // Fetch projects owned by the user
     const ownedProjects = await prisma.project.findMany({
-      where: { ownerId: user?.id },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          }
-        },
-        technologies: {
-          include: {
-            technology: true
-          }
-        },
-        categories: {
-          include: {
-            category: true
-          }
-        },
-        industries: {
-          include: {
-            industry: true
-          }
-        },
-        members: {
-          where: { status: 'ACTIVE' },
-          select: { userId: true }
-        },
-        _count: {
-          select: {
-            members: {
-              where: { status: 'ACTIVE' }
-            }
-          }
-        },
-        requests: {
-          select: {
-            userId: true,
-            status: true,
-          },
-        },
-      },
+      where: { ownerId: userId },
+      include: projectIncludes,
       orderBy: {
         createdAt: 'desc'
       },
@@ -67,66 +71,20 @@ export async function GET(request: Request) {
       where: {
         members: {
           some: {
-            userId: user.id,
-            status: 'ACTIVE',
+            userId: userId,
+            status: MemberStatus.ACTIVE,
           },
         },
       },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          }
-        },
-        technologies: {
-          include: {
-            technology: true
-          }
-        },
-        categories: {
-          include: {
-            category: true
-          }
-        },
-        industries: {
-          include: {
-            industry: true
-          }
-        },
-        members: {
-          where: { status: 'ACTIVE' },
-          select: { userId: true }
-        },
-        _count: {
-          select: {
-            members: {
-              where: { status: 'ACTIVE' }
-            }
-          }
-        },
-        requests: {
-          select: {
-            userId: true,
-            status: true,
-          },
-        },
-      },
+      include: projectIncludes,
       orderBy: {
         createdAt: 'desc'
       }
     });
-    
-    // Flatten the nested data for easier use on the client
-    const formatProjects = (projects: any[]) => projects.map(p => ({
-        ...p,
-        technologies: p.technologies.map((t: any) => t.technology)
-    }));
 
     return NextResponse.json({
-      ownedProjects: formatProjects(ownedProjects),
-      memberProjects: formatProjects(memberProjects),
+      ownedProjects: ownedProjects,
+      memberProjects: memberProjects,
     });
 
   } catch (error) {
