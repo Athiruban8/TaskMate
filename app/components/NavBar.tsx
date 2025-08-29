@@ -13,6 +13,7 @@ import {
   FolderIcon,
   InboxStackIcon,
   Squares2X2Icon,
+  EnvelopeIcon,
 } from "@heroicons/react/24/outline";
 import ThemeToggle from "./ThemeToggle";
 import { Logo } from "./Logo";
@@ -59,6 +60,7 @@ export default function Navigation() {
     { name: "Projects", href: "/projects", icon: Squares2X2Icon },
     { name: "My Projects", href: "/my-projects", icon: FolderIcon },
     { name: "Requests", href: "/requests", icon: InboxStackIcon },
+    { name: "Chats", href: "/chats", icon: EnvelopeIcon },
   ];
 
   const NavLink = ({
@@ -88,7 +90,7 @@ export default function Navigation() {
       <div className="py-1">
         <div className="px-4 py-3">
           <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">
-            {user?.user_metadata?.name || "User"}
+            {user?.name || "User"}
           </p>
           <p className="truncate text-sm text-neutral-500 dark:text-neutral-400">
             {user?.email}
@@ -206,15 +208,8 @@ export default function Navigation() {
                   className="flex cursor-pointer items-center space-x-2 rounded-full p-1 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800"
                 >
                   <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
-                    {user?.user_metadata?.avatar_url ? (
-                      <img
-                        src={user.user_metadata.avatar_url}
-                        alt="User avatar"
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <UserCircleIcon className="h-7 w-7 text-neutral-500 dark:text-neutral-400" />
-                    )}
+                    {/* Placeholder for User avatar */}
+                    <UserCircleIcon className="h-7 w-7 text-neutral-500 dark:text-neutral-400" />
                   </div>
                 </button>
                 {isProfileOpen && <ProfileMenu />}

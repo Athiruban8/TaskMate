@@ -20,6 +20,7 @@ model User {
   ownedProjects   Project[]        @relation("UserProjects")
   projectMembers  ProjectMember[]
   projectRequests ProjectRequest[] 
+  messages        Message[]
 }
 
 model Project {
@@ -38,6 +39,7 @@ model Project {
   categories    ProjectCategory[] // Many-to-many with Category  
   industries    ProjectIndustry[] // Many-to-many with Industry
   requests      ProjectRequest[]  // Join requests for this project
+  messages        Message[]
 }
 
 model Technology {
@@ -120,10 +122,24 @@ model ProjectMember {
   joinedAt  DateTime     @default(now())
   
   user      User         @relation(fields: [userId], references: [id])
-  project   Project      @relation(fields: [projectId], references: [id])
+  project   Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   
   @@unique([userId, projectId])
 }
+
+model Message {
+  id         String   @id @default(uuid())
+  content    String
+  createdAt  DateTime @default(now())
+  
+  projectId  String
+  userId     String
+
+  // Relations
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
 
 enum MemberStatus {
   ACTIVE
