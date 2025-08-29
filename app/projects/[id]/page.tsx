@@ -17,6 +17,7 @@ import {
 import { useAuth } from "@/lib/auth-context";
 import { JoinRequestModal } from "@/app/components/JoinRequestModal";
 import { ProjectDetails, JoinRequest, RequestStatus } from "@/lib/types";
+import { RealtimeChat } from "@/app/components/realtime-chat";
 import ProjectForm from "@/app/components/ProjectForm";
 
 interface RequestCardProps {
@@ -396,6 +397,13 @@ export default function ProjectPage() {
                     {project.description}
                   </p>
                 </div>
+              )}
+              {(project.owner?.id === currentUser?.id || project.isAlreadyMember) && (
+                <RealtimeChat
+                  roomName={id}
+                  currentUserId={currentUser!.id}
+                  currentUserName={currentUser!.user_metadata?.name || currentUser!.email || "You"}
+                />
               )}
               {activeTab === "requests" && isOwner && (
                 <div className="space-y-4">
