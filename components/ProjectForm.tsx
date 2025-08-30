@@ -236,7 +236,7 @@ export default function ProjectForm({
       if (techRes.ok) setTechnologies(await techRes.json());
       if (catRes.ok) setCategories(await catRes.json());
       if (indRes.ok) setIndustries(await indRes.json());
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching options:", error);
       setError("Could not load project options.");
     }

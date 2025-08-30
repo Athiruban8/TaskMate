@@ -46,7 +46,7 @@ export default function ProjectsPage() {
         }
         setProjects(data);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching projects:", error);
     } finally {
       setLoading(false);

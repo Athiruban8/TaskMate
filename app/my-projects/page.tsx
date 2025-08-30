@@ -47,7 +47,7 @@ export default function MyProjectsPage() {
 
         setOwnedProjects(processProjects(data.ownedProjects || []));
         setMemberProjects(processProjects(data.memberProjects || []));
-      } catch (error) {
+      } catch (error: any) {
         console.error(error);
       } finally {
         setLoading(false);

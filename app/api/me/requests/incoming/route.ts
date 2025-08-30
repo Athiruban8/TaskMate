@@ -39,7 +39,7 @@ export async function GET() {
     });
 
     return NextResponse.json(projectsWithRequests);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching incoming requests:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

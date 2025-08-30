@@ -14,7 +14,7 @@ export async function GET() {
       return NextResponse.json({ error: 'User profile not found' }, { status: 404 });
     }
     return NextResponse.json(userProfile);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching user profile:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -49,7 +49,7 @@ export async function PUT(request: Request) {
     });
 
     return NextResponse.json(updatedUser);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error updating user profile:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

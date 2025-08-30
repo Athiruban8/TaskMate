@@ -39,7 +39,7 @@ export async function GET({ params }: { params: { id: string } }) {
     }))
 
     return NextResponse.json(result)
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching messages:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       createdAt: created.createdAt,
       user: { id: created.userId, name: created.user.name ?? created.user.email }
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating message:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }

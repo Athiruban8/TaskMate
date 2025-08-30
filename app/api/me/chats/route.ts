@@ -34,7 +34,7 @@ export async function GET() {
     })
 
     return NextResponse.json(projects)
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching chats:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }

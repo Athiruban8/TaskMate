@@ -87,7 +87,7 @@ export async function GET() {
       memberProjects: memberProjects,
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching user projects:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

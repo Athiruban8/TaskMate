@@ -45,7 +45,7 @@ export async function GET(
     })
 
     return NextResponse.json(requests)
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching requests:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
@@ -143,7 +143,7 @@ export async function POST(
     })
 
     return NextResponse.json(projectRequest, { status: 201 })
-  } catch (error) {
+  } catch (error: any) {
   
     if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
       return NextResponse.json({ error: 'Request already exists' }, { status: 400 })

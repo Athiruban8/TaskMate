@@ -93,7 +93,7 @@ export async function PATCH(
 
       return NextResponse.json(updatedRequest)
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error processing request:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
@@ -134,7 +134,7 @@ export async function DELETE(
     })
 
     return NextResponse.json({ message: 'Request withdrawn' })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error withdrawing request:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }

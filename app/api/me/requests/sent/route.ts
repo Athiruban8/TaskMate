@@ -27,7 +27,7 @@ export async function GET() {
     });
 
     return NextResponse.json(sentRequests);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching sent requests:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

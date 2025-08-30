@@ -86,7 +86,7 @@ export default function MyRequestsPage() {
         ]);
         if (incomingRes.ok) setIncomingRequests(await incomingRes.json());
         if (sentRes.ok) setSentRequests(await sentRes.json());
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to fetch requests", error);
       } finally {
         setLoading(false);

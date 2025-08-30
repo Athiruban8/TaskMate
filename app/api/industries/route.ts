@@ -9,7 +9,7 @@ export async function GET() {
       orderBy: { name: 'asc' }
     })
     return NextResponse.json(industries)
-  } catch (error) {
+  } catch (error: any) {
     return NextResponse.json({ error: 'Failed to fetch industries' }, { status: 500 })
   }
 }
