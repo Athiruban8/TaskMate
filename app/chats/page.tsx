@@ -1,13 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Navigation from "@/app/components/NavBar";
+import Navigation from "@/components/NavBar";
 import { useAuth } from "@/lib/auth-context";
 import {
   ChatBubbleLeftRightIcon,
   ArrowRightIcon,
 } from "@heroicons/react/24/outline";
-import { RealtimeChat } from "@/app/components/realtime-chat";
+import { RealtimeChat } from "@/components/realtime-chat";
 import { createBrowserSupabaseClient } from "@/lib/supabase";
 interface ChatProject {
   id: string;

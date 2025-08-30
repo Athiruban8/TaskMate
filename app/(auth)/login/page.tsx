@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
-import { Logo } from "@/app/components/Logo";
+import { Logo } from "@/components/Logo";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");

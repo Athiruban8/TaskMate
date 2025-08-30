@@ -13,12 +13,13 @@ import {
   InboxIcon,
   ArrowUturnLeftIcon,
   PencilIcon,
+  ChatBubbleOvalLeftEllipsisIcon,
 } from "@heroicons/react/24/outline";
 import { useAuth } from "@/lib/auth-context";
-import { JoinRequestModal } from "@/app/components/JoinRequestModal";
+import { JoinRequestModal } from "@/components/JoinRequestModal";
 import { ProjectDetails, JoinRequest, RequestStatus } from "@/lib/types";
-import { RealtimeChat } from "@/app/components/realtime-chat";
-import ProjectForm from "@/app/components/ProjectForm";
+import { RealtimeChat } from "@/components/realtime-chat";
+import ProjectForm from "@/components/ProjectForm";
 
 interface RequestCardProps {
   request: JoinRequest;
@@ -365,7 +366,7 @@ export default function ProjectPage() {
 
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
             <div className="space-y-8 lg:col-span-2">
-              {isOwner && (
+              {(isOwner || project.isAlreadyMember) && (
                 <div className="border-b border-neutral-200 dark:border-neutral-800">
                   <nav className="-mb-px flex space-x-6">
                     <button
@@ -375,36 +376,66 @@ export default function ProjectPage() {
                       Description
                     </button>
                     <button
-                      onClick={() => setActiveTab("requests")}
-                      className={`flex cursor-pointer items-center gap-2 border-b-2 px-1 py-3 text-sm font-medium whitespace-nowrap ${activeTab === "requests" ? "border-black text-black dark:border-white dark:text-white" : "border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700 dark:text-neutral-400 dark:hover:border-neutral-600 dark:hover:text-neutral-200"}`}
+                      onClick={() => setActiveTab("chat")}
+                      className={`flex cursor-pointer items-center gap-2 border-b-2 px-1 py-3 text-sm font-medium whitespace-nowrap ${activeTab === "chat" ? "border-black text-black dark:border-white dark:text-white" : "border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700 dark:text-neutral-400 dark:hover:border-neutral-600 dark:hover:text-neutral-200"}`}
                     >
-                      <InboxIcon className="h-4 w-4" /> Requests
-                      {requests.length > 0 && (
-                        <span className="ml-1 rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white">
-                          {requests.length}
-                        </span>
-                      )}
+                      <ChatBubbleOvalLeftEllipsisIcon className="h-4 w-4" />
+                      Chat
                     </button>
+                    {isOwner && (
+                      <button
+                        onClick={() => setActiveTab("requests")}
+                        className={`flex cursor-pointer items-center gap-2 border-b-2 px-1 py-3 text-sm font-medium whitespace-nowrap ${activeTab === "requests" ? "border-black text-black dark:border-white dark:text-white" : "border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700 dark:text-neutral-400 dark:hover:border-neutral-600 dark:hover:text-neutral-200"}`}
+                      >
+                        <InboxIcon className="h-4 w-4" /> Requests
+                        {requests.length > 0 && (
+                          <span className="ml-1 rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white">
+                            {requests.length}
+                          </span>
+                        )}
+                      </button>
+                    )}
                   </nav>
                 </div>
               )}
+
               {activeTab === "description" && (
-                <div className="rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900">
-                  <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
-                    Project Description
-                  </h2>
-                  <p className="mt-3 whitespace-pre-wrap text-neutral-600 dark:text-neutral-400">
-                    {project.description}
-                  </p>
-                </div>
+                <>
+                  <div className="rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900">
+                    <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                      Project Description
+                    </h2>
+                    <p className="mt-3 whitespace-pre-wrap text-neutral-600 dark:text-neutral-400">
+                      {project.description}
+                    </p>
+                  </div>
+                  {project.technologies.length > 0 && (
+                    <div className="rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900">
+                      <h2 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-white">
+                        Technologies
+                      </h2>
+                      <div className="flex flex-wrap gap-2">
+                        {project.technologies.map((tech) => (
+                          <TechBadge key={tech.id} name={tech.name} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
-              {(project.owner?.id === currentUser?.id || project.isAlreadyMember) && (
+
+              {activeTab === "chat" && (isOwner || project.isAlreadyMember) && (
                 <RealtimeChat
                   roomName={id}
                   currentUserId={currentUser!.id}
-                  currentUserName={currentUser!.user_metadata?.name || currentUser!.email || "You"}
+                  currentUserName={
+                    currentUser!.user_metadata?.name ||
+                    currentUser!.email ||
+                    "You"
+                  }
                 />
               )}
+
               {activeTab === "requests" && isOwner && (
                 <div className="space-y-4">
                   {requestsLoading ? (
@@ -431,19 +462,6 @@ export default function ProjectPage() {
                   )}
                 </div>
               )}
-              {activeTab === "description" &&
-                project.technologies.length > 0 && (
-                  <div className="rounded-xl border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900">
-                    <h2 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-white">
-                      Technologies
-                    </h2>
-                    <div className="flex flex-wrap gap-2">
-                      {project.technologies.map((tech) => (
-                        <TechBadge key={tech.id} name={tech.name} />
-                      ))}
-                    </div>
-                  </div>
-                )}
             </div>
 
             {/* Sidebar */}

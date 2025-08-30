@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useAuth } from "../../lib/auth-context";
+import { useAuth } from "../lib/auth-context";
 import { useRouter, usePathname } from "next/navigation";
 import {
   BellIcon,
@@ -90,7 +90,7 @@ export default function Navigation() {
       <div className="py-1">
         <div className="px-4 py-3">
           <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">
-            {user?.name || "User"}
+            {user?.user_metadata?.name || "User"}
           </p>
           <p className="truncate text-sm text-neutral-500 dark:text-neutral-400">
             {user?.email}
@@ -104,13 +104,13 @@ export default function Navigation() {
           <UserCircleIcon className="h-5 w-5" />
           Your Profile
         </a>
-        <a
+        {/* <a
           href="/settings"
           className="flex items-center gap-3 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
         >
           <Cog6ToothIcon className="h-5 w-5" />
           Settings
-        </a>
+        </a> */}
         <div className="border-t border-neutral-200 dark:border-neutral-800" />
         <button
           onClick={handleSignOut}

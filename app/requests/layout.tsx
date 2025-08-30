@@ -1,4 +1,4 @@
-import Navigation from "@/app/components/NavBar";
+import Navigation from "@/components/NavBar";
 
 export default function RequestsLayout({
   children,

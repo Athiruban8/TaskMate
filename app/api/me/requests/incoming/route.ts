@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase-server';
 
 const prisma = new PrismaClient();
 
-// GET /api/users/me/requests/incoming
+// GET /api/me/requests/incoming
 // Fetches all pending requests for projects owned by the current user.
 export async function GET(request: Request) {
   try {

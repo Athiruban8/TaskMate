@@ -74,13 +74,13 @@ export function RealtimeChat({
   }, [messages]);
 
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900">
+    <div className="flex h-[600px] w-full flex-col rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900">
       <div className="border-b border-neutral-200 p-4 dark:border-neutral-800">
         <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
           Team Chat
         </h3>
       </div>
-      <div ref={listRef} className="max-h-[420px] overflow-y-auto p-4">
+      <div ref={listRef} className="flex-1 overflow-y-auto p-4">
         {items.map(({ m, showHeader }) => (
           <ChatMessageItem
             key={m.id + m.createdAt}

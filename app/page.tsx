@@ -8,8 +8,8 @@ import {
 } from "@heroicons/react/24/outline";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import ThemeToggle from "./components/ThemeToggle";
-import { Logo } from "./components/Logo";
+import ThemeToggle from "../components/ThemeToggle";
+import { Logo } from "../components/Logo";
 
 // A reusable, animated button component
 interface MotionLinkButtonProps {

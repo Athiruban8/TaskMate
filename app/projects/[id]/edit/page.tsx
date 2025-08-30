@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import ProjectForm from "@/app/components/ProjectForm";
+import ProjectForm from "@/components/ProjectForm";
 import { ProjectDetails } from "@/lib/types";
-import Navigation from "@/app/components/NavBar";
+import Navigation from "@/components/NavBar";
 
 export default function EditProjectPage() {
   const [project, setProject] = useState<ProjectDetails | null>(null);

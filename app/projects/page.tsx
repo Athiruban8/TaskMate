@@ -8,10 +8,10 @@ import {
   FolderIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import ProjectForm from "@/app/components/ProjectForm";
-import Navigation from "@/app/components/NavBar";
+import ProjectForm from "@/components/ProjectForm";
+import Navigation from "@/components/NavBar";
 import { useAuth } from "@/lib/auth-context";
-import { JoinRequestModal } from "@/app/components/JoinRequestModal";
+import { JoinRequestModal } from "@/components/JoinRequestModal";
 import { ProjectSummary, RequestStatus } from "@/lib/types";
 
 export default function ProjectsPage() {

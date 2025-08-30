@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
-import { Logo } from "@/app/components/Logo";
+import { Logo } from "@/components/Logo";
 import { EyeIcon, EyeSlashIcon, CheckIcon } from "@heroicons/react/24/outline";
 
 export default function SignupPage() {

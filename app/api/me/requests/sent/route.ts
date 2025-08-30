@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { createClient } from '@/lib/supabase-server';
 
 const prisma = new PrismaClient();
-// GET /api/users/me/requests/sent
+// GET /api/me/requests/sent
 // Fetches all requests made by the current user.
 export async function GET(request: Request) {
   try {

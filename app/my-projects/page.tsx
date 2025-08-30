@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { FolderIcon } from "@heroicons/react/24/outline";
-import { ProjectCard } from "@/app/components/ProjectCard"; // Import the shared component
+import { ProjectCard } from "@/components/ProjectCard"; // Import the shared component
 import { ProjectSummary } from "@/lib/types";
-import { JoinRequestModal } from "@/app/components/JoinRequestModal";
-import Navigation from "@/app/components/NavBar";
+import { JoinRequestModal } from "@/components/JoinRequestModal";
+import Navigation from "@/components/NavBar";
 
 export default function MyProjectsPage() {
   const [ownedProjects, setOwnedProjects] = useState<ProjectSummary[]>([]);

@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase-server'
 
 const prisma = new PrismaClient()
 
-// GET /api/users/me/chats
+// GET /api/me/chats
 // Returns projects the user owns or is an ACTIVE member of, with the latest message preview
 export async function GET() {
   try {

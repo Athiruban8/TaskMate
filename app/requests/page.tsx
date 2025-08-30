@@ -3,7 +3,7 @@
 import { useState, useEffect, FC } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
-import { RequestCard } from "@/app/components/RequestCard";
+import { RequestCard } from "@/components/RequestCard";
 import { JoinRequest, RequestStatus, User } from "@/lib/types";
 import { InboxIcon, PaperAirplaneIcon } from "@heroicons/react/24/outline";
 
