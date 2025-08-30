@@ -25,7 +25,7 @@ export default function ProfilePage() {
       if (!response.ok) throw new Error("Could not fetch profile.");
       const data: User = await response.json();
       setProfile(data);
-    } catch (err) {
+    } catch (err: any) {
       setError(err instanceof Error ? err.message : "Failed to load profile.");
     } finally {
       setProfileLoading(false);

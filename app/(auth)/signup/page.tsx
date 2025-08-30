@@ -60,7 +60,7 @@ export default function SignupPage() {
               Check your email
             </h2>
             <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-              We've sent a confirmation link to{" "}
+              We&apos;ve sent a confirmation link to{" "}
               <span className="font-medium text-neutral-800 dark:text-neutral-200">
                 {email}
               </span>{" "}

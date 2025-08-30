@@ -141,7 +141,7 @@ export const ProfileEditModal: FC<ProfileEditModalProps> = ({
         throw new Error(errorData.error || "Failed to update profile.");
       }
       onSuccess();
-    } catch (err) {
+    } catch (err: any) {
       setError(err instanceof Error ? err.message : "An error occurred.");
     } finally {
       setIsSaving(false);

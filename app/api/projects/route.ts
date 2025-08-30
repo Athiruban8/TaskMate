@@ -54,7 +54,7 @@ export async function GET() {
     })
     
     return NextResponse.json(projects)
-  } catch (err) {
+  } catch (err: any) {
     console.error('Error fetching projects:', err)
     return NextResponse.json({ error: 'Failed to fetch projects' }, { status: 500 })
   }
@@ -170,7 +170,7 @@ export async function POST(request: Request) {
     })
 
     return NextResponse.json(project, { status: 201 })
-  } catch (err : any) {
+  } catch (err: any) {
     console.error('Error creating project:', err)
 
     // Error handling

@@ -6,7 +6,6 @@ import { useAuth } from "@/lib/auth-context";
 import { FolderIcon } from "@heroicons/react/24/outline";
 import { ProjectCard } from "@/components/ProjectCard"; // Import the shared component
 import { ProjectSummary } from "@/lib/types";
-import { JoinRequestModal } from "@/components/JoinRequestModal";
 import Navigation from "@/components/NavBar";
 
 export default function MyProjectsPage() {
@@ -83,7 +82,7 @@ export default function MyProjectsPage() {
                 No projects yet
               </h2>
               <p className="mt-1 text-neutral-500 dark:text-neutral-400">
-                You haven't created or joined any projects.
+                You haven&apos;t created or joined any projects.
               </p>
               <Link
                 href="/projects"
@@ -100,7 +99,7 @@ export default function MyProjectsPage() {
                     My Projects
                   </h1>
                   <p className="mt-2 text-neutral-500 dark:text-neutral-400">
-                    Projects you've created and are managing.
+                    Projects you&apos;ve created and are managing.
                   </p>
                   <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {ownedProjects.map((project) => (
@@ -117,7 +116,7 @@ export default function MyProjectsPage() {
               {hasMemberProjects && (
                 <section>
                   <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-white">
-                    Projects I'm Part Of
+                    Projects I&apos;m Part Of
                   </h1>
                   <p className="mt-2 text-neutral-500 dark:text-neutral-400">
                     Projects where you are a collaborator.

@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 // GET /api/me/requests/incoming
 // Fetches all pending requests for projects owned by the current user.
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();

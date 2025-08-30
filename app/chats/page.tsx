@@ -53,7 +53,9 @@ export default function ChatsPage() {
     channel.on(
       "postgres_changes",
       { event: "INSERT", schema: "public", table: "Message" },
-      (payload: any) => {
+      (payload: {
+        new: { projectId: string; content: string; createdAt: string };
+      }) => {
         const projectId = payload?.new?.projectId as string | undefined;
         const content = payload?.new?.content as string | undefined;
         const createdAt = payload?.new?.createdAt as string | undefined;

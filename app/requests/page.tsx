@@ -191,7 +191,7 @@ export default function MyRequestsPage() {
               ))
             ) : (
               <p className="pt-4 text-neutral-500">
-                You haven't sent any join requests.
+                You haven&apos;t sent any join requests.
               </p>
             )}
           </div>

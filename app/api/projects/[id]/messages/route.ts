@@ -15,7 +15,7 @@ async function assertIsProjectMemberOrOwner(userId: string, projectId: string) {
 }
 
 // GET /api/projects/[id]/messages
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET({ params }: { params: { id: string } }) {
   try {
     const { id } = await params
     const supabase = await createClient()

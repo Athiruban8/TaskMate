@@ -41,8 +41,12 @@ const RequestCard = ({
     setError("");
     try {
       await onAction(request.id, action);
-    } catch (err: any) {
-      setError(err.message || "An error occurred.");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An error occurred.");
+      }
       setLoading(false);
     }
   };
@@ -173,7 +177,7 @@ export default function ProjectPage() {
         );
       }
       setProject(data);
-    } catch (err) {
+    } catch (err: any) {
       setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setLoading(false);
@@ -183,7 +187,7 @@ export default function ProjectPage() {
   useEffect(() => {
     if (!id) return;
     fetchProject();
-  }, [id, currentUser]);
+  }, [id, currentUser, fetchProject]);
 
   const isOwner = project?.owner?.id === currentUser?.id;
 
@@ -196,7 +200,7 @@ export default function ProjectPage() {
           if (!response.ok) throw new Error("Failed to fetch requests.");
           const data = await response.json();
           setRequests(data);
-        } catch (err) {
+        } catch (err: any) {
           console.error(err);
         } finally {
           setRequestsLoading(false);

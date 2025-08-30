@@ -48,7 +48,7 @@ const projectIncludes = {
 };
 
 // GET /api/me/projects
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();

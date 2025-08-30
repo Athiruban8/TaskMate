@@ -6,7 +6,6 @@ const prisma = new PrismaClient()
 
 // GET - Get all requests for a project (project owner only)
 export async function GET(
-  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {

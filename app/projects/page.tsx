@@ -55,7 +55,7 @@ export default function ProjectsPage() {
 
   useEffect(() => {
     fetchProjects();
-  }, [user]);
+  }, [user, fetchProjects]);
 
   const handleRequestSuccess = (projectId: string) => {
     setProjects((prevProjects) =>

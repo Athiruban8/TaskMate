@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase-server';
 const prisma = new PrismaClient();
 
 // GET /api/me - Fetches the current user's profile
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()

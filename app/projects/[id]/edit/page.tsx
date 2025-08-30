@@ -23,7 +23,7 @@ export default function EditProjectPage() {
         if (!response.ok) throw new Error("Failed to fetch project data.");
         const data = await response.json();
         setProject(data);
-      } catch (err) {
+      } catch (err: any) {
         setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
         setLoading(false);

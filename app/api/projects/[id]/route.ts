@@ -5,7 +5,6 @@ const prisma = new PrismaClient()
 
 // GET /api/projects/[id] - Get a specific project
 export async function GET(
-  request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -77,7 +76,7 @@ export async function GET(
 
     
     return NextResponse.json(formattedProject)
-  } catch (err) {
+  } catch (err: any) {
     console.error('Error fetching project:', err)
     return NextResponse.json({ error: 'Failed to fetch project' }, { status: 500 })
   }
@@ -160,7 +159,7 @@ export async function PUT(
     };
 
     return NextResponse.json(formattedProject)
-  } catch (err) {
+  } catch (err: any) {
     console.error('Error updating project:', err)
     return NextResponse.json({ error: 'Failed to update project' }, { status: 500 })
   }
@@ -190,7 +189,7 @@ export async function DELETE(
     });
     return NextResponse.json({ message: 'Project deleted successfully' });
   } 
-  catch (err) {
+  catch (err: any) {
     console.error('Error deleting project:', err);
     return NextResponse.json({ error: 'Failed to delete project' }, { status: 500 });
   }

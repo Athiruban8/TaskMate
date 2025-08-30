@@ -291,7 +291,7 @@ export default function ProjectForm({
         throw new Error(errorData.error || "Failed to save project");
       }
       onSuccess?.();
-    } catch (err) {
+    } catch (err: any) {
       setError(
         err instanceof Error ? err.message : "An unexpected error occurred.",
       );
@@ -307,7 +307,7 @@ export default function ProjectForm({
     try {
       await fetch(`/api/projects/${projectToEdit.id}`, { method: "DELETE" });
       router.push("/projects"); // redirect to projects page after deletion
-    } catch (err) {
+    } catch (err: any) {
       setError("Failed to delete project.");
       setDeleting(false);
     }
