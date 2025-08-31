@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { createClient } from '@/lib/supabase-server';
 import { MemberStatus } from '@prisma/client';
 
-const prisma = new PrismaClient();
+;
 
 const projectIncludes = {
   owner: {

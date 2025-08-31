@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase-server'
 
-const prisma = new PrismaClient()
+
 
 // GET /api/me/chats
 // Returns projects the user owns or is an ACTIVE member of, with the latest message preview

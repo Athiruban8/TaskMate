@@ -187,7 +187,7 @@ export default function ProjectPage() {
   useEffect(() => {
     if (!id) return;
     fetchProject();
-  }, [id, currentUser, fetchProject]);
+  }, [id]);
 
   const isOwner = project?.owner?.id === currentUser?.id;
 

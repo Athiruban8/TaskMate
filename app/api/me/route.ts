@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { createClient } from '@/lib/supabase-server';
-const prisma = new PrismaClient();
+;
 
 // GET /api/me - Fetches the current user's profile
 export async function GET() {

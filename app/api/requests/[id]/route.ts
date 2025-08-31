@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase-server'
-const prisma = new PrismaClient();
+;
 // PATCH - Approve/reject a request
 export async function PATCH(
     request: NextRequest,

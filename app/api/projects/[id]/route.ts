@@ -1,14 +1,13 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 // GET /api/projects/[id] - Get a specific project
 export async function GET(
+   _request: Request, 
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
+    const { id } = params;
     
     const project = await prisma.project.findUnique({
       where: {

@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { createClient } from '@/lib/supabase-server';
 
-const prisma = new PrismaClient();
+;
 // GET /api/me/requests/sent
 // Fetches all requests made by the current user.
 export async function GET() {

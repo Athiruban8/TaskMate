@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase-server'
 
-const prisma = new PrismaClient()
+
 
 async function assertIsProjectMemberOrOwner(userId: string, projectId: string) {
   const project = await prisma.project.findUnique({
@@ -15,9 +15,12 @@ async function assertIsProjectMemberOrOwner(userId: string, projectId: string) {
 }
 
 // GET /api/projects/[id]/messages
-export async function GET({ params }: { params: { id: string } }) {
+export async function GET(
+  _request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { id } = await params
+    const { id } = params
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
